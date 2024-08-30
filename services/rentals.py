@@ -18,7 +18,6 @@ async def get_car_by_id(session: AsyncSession, car_id: int):
 async def create_rental(session: AsyncSession, rental_data: RentalCreate):
     stmt = insert(Rental).values(**rental_data.model_dump()).returning(Rental)
     result = await session.execute(stmt)
-    await session.commit()
     return result.scalars().first()
 
 async def update_rental(session: AsyncSession, rental_id: int, rental_data: RentalCreate):
@@ -29,13 +28,11 @@ async def update_rental(session: AsyncSession, rental_id: int, rental_data: Rent
         .execution_options(synchronize_session="fetch")
     )
     await session.execute(stmt)
-    await session.commit()
     return await session.get(Rental, rental_id)
 
 async def delete_rental(session: AsyncSession, rental_id: int):
     stmt = delete(Rental).where(Rental.id == rental_id)
     await session.execute(stmt)
-    await session.commit()
 
 async def get_rentals(session: AsyncSession, renter_id: Optional[int] = None):
     stmt = select(Rental).options(
