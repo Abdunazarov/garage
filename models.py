@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from passlib.hash import bcrypt
+
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from db import Base
 
@@ -37,3 +39,22 @@ class Rental(Base):
     
     renter = relationship("Renter", back_populates="rentals")
     car = relationship("Car", back_populates="rentals")
+
+
+
+class User(Base):
+    __tablename__ = 'users'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    phone_number = Column(String, nullable=False)
+    is_admin = Column(Boolean)
+    
+    hashed_password = Column(String)
+
+    def verify_password(self, password):
+        try:
+            return bcrypt.verify(password, str(self.hashed_password))
+        except Exception:
+            return False

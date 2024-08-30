@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import rentals, cars, renters
+from routers import rentals, cars, renters, authentication
 
 app = FastAPI(title="Garazh: Backend APIs")
 
@@ -13,6 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(authentication.router, prefix="/auth")
 app.include_router(rentals.router, prefix="/rentals")
 app.include_router(cars.router, prefix="/cars")
 app.include_router(renters.router, prefix="/renters")
