@@ -16,7 +16,10 @@ async def get_car_by_id(session: AsyncSession, car_id: int):
     return result.scalars().first()
 
 async def create_rental(session: AsyncSession, rental_data: RentalCreate):
-    stmt = insert(Rental).values(**rental_data.model_dump()).returning(Rental)
+    data = rental_data.model_dump(exclude_unset=True)
+    data["investor_profit"] = rental_data.total_amount * 0.7
+    
+    stmt = insert(Rental).values(**data).returning(Rental)
     result = await session.execute(stmt)
     return result.scalars().first()
 
@@ -82,10 +85,20 @@ async def get_dashboard_metrics(session: AsyncSession):
     daily_cash_result = await session.execute(daily_cash_query)
     daily_cash = daily_cash_result.scalar() or 0
 
+    daily_investor_profit_query = select(func.sum(Rental.investor_profit)).filter(Rental.issue_date == today)
+    daily_investor_profit_result = await session.execute(daily_investor_profit_query)
+    daily_investor_profit = daily_investor_profit_result.scalar() or 0
+
+    monthly_investor_profit_query = select(func.sum(Rental.investor_profit)).filter(Rental.issue_date >= first_day_of_month)
+    monthly_investor_profit_result = await session.execute(monthly_investor_profit_query)
+    monthly_investor_profit = monthly_investor_profit_result.scalar() or 0
+
     return {
         "renters_per_month": renters_per_month,
         "monthly_cash": monthly_cash,
         "monthly_expenses": monthly_expenses,
         "renters_per_day": renters_per_day,
         "daily_cash": daily_cash,
+        "daily_investor_profit": daily_investor_profit,
+        "monthly_investor_profit": monthly_investor_profit,
     }

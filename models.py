@@ -30,11 +30,13 @@ class Rental(Base):
     car_id = Column(Integer, ForeignKey('cars.id'), nullable=False)
     issue_date = Column(Date, nullable=False)
     return_date = Column(Date, nullable=False)
+    investor_profit = Column(Integer, nullable=True)
     total_amount = Column(Float, nullable=False)
     payment_method = Column(String, nullable=False)
     deposit = Column(Float, nullable=False)
     mileage = Column(Float)
     fuel_cost = Column(Float)
+    status = Column(String)
     other_expenses = Column(Float)
     
     renter = relationship("Renter", back_populates="rentals")

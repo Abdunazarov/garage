@@ -1,6 +1,13 @@
 from pydantic import BaseModel
 from datetime import date
 from typing import Optional
+from enum import Enum
+
+class RentalStatus(str, Enum):
+    DEPOSIT_MADE = "Дал залог"
+    IN_PROGRESS = "В процессе"
+    PAID = "Оплачено"
+    DEBT = "Долг"
 
 class RentalCreate(BaseModel):
     renter_id: int
@@ -12,6 +19,7 @@ class RentalCreate(BaseModel):
     deposit: float
     mileage: Optional[float] = None
     fuel_cost: Optional[float] = None
+    status: RentalStatus = RentalStatus.DEBT
     other_expenses: Optional[float] = None
 
 class RentalUpdate(BaseModel):
@@ -24,6 +32,7 @@ class RentalUpdate(BaseModel):
     deposit: Optional[float] = None
     mileage: Optional[float] = None
     fuel_cost: Optional[float] = None
+    status: Optional[RentalStatus] = None
     other_expenses: Optional[float] = None
 
 class Rental(BaseModel):
@@ -33,8 +42,10 @@ class Rental(BaseModel):
     issue_date: date
     return_date: date
     total_amount: float
+    investor_profit: Optional[int] = None
     payment_method: str
     deposit: float
     mileage: Optional[float] = None
     fuel_cost: Optional[float] = None
     other_expenses: Optional[float] = None
+    status: Optional[RentalStatus] = None
