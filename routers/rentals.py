@@ -47,3 +47,9 @@ async def get_rentals(renter_id: Optional[int] = None, session: AsyncSession = D
 async def get_rentals(name: str, session: AsyncSession = Depends(get_session), user: User = Depends(get_current_user)):
     rentals = await rental_service.get_rentals_by_renter_name(session, name)
     return rentals
+
+
+@router.get("/dashboard")
+async def get_dashboard_data(session: AsyncSession = Depends(get_session),  user: User = Depends(get_current_user)):
+    metrics = await rental_service.get_dashboard_metrics(session)
+    return metrics

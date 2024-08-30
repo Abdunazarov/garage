@@ -1,10 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import insert, update, delete
+from sqlalchemy import insert, update, delete, func
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from models import Rental, Renter, Car
 from schemas.rentals import RentalCreate
 from typing import Optional
+from datetime import timedelta, date
 
 async def get_renter_by_id(session: AsyncSession, renter_id: int):
     result = await session.execute(select(Renter).filter(Renter.id == renter_id))
@@ -58,3 +59,36 @@ async def get_rentals_by_renter_name(session: AsyncSession, renter_name: str):
     result = await session.execute(stmt)
     return result.scalars().all()
 
+
+
+async def get_dashboard_metrics(session: AsyncSession):
+    today = date.today()
+    first_day_of_month = today.replace(day=1)
+
+    renters_per_month_query = select(func.count(Rental.id)).filter(Rental.issue_date >= first_day_of_month)
+    renters_per_month_result = await session.execute(renters_per_month_query)
+    renters_per_month = renters_per_month_result.scalar()
+
+    monthly_cash_query = select(func.sum(Rental.total_amount)).filter(Rental.issue_date >= first_day_of_month)
+    monthly_cash_result = await session.execute(monthly_cash_query)
+    monthly_cash = monthly_cash_result.scalar() or 0
+
+    monthly_expenses_query = select(func.sum(Rental.other_expenses)).filter(Rental.issue_date >= first_day_of_month)
+    monthly_expenses_result = await session.execute(monthly_expenses_query)
+    monthly_expenses = monthly_expenses_result.scalar() or 0
+
+    renters_per_day_query = select(func.count(Rental.id)).filter(Rental.issue_date == today)
+    renters_per_day_result = await session.execute(renters_per_day_query)
+    renters_per_day = renters_per_day_result.scalar()
+
+    daily_cash_query = select(func.sum(Rental.total_amount)).filter(Rental.issue_date == today)
+    daily_cash_result = await session.execute(daily_cash_query)
+    daily_cash = daily_cash_result.scalar() or 0
+
+    return {
+        "renters_per_month": renters_per_month,
+        "monthly_cash": monthly_cash,
+        "monthly_expenses": monthly_expenses,
+        "renters_per_day": renters_per_day,
+        "daily_cash": daily_cash,
+    }
