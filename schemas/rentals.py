@@ -16,6 +16,7 @@ class RentalCreate(BaseModel):
     return_date: date
     total_amount: float
     payment_method: str
+    investor_percentage: float
     deposit: float
     mileage: Optional[float] = None
     fuel_cost: Optional[float] = None
@@ -29,6 +30,8 @@ class RentalUpdate(BaseModel):
     return_date: Optional[date] = None
     total_amount: Optional[float] = None
     payment_method: Optional[str] = None
+    investor_percentage: Optional[float] = None
+    investor_profit: Optional[int] = None
     deposit: Optional[float] = None
     mileage: Optional[float] = None
     fuel_cost: Optional[float] = None
@@ -43,6 +46,7 @@ class Rental(BaseModel):
     return_date: date
     total_amount: float
     investor_profit: Optional[int] = None
+    investor_percentage: Optional[float] = None
     payment_method: str
     deposit: float
     mileage: Optional[float] = None

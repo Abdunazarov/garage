@@ -17,7 +17,7 @@ async def get_car_by_id(session: AsyncSession, car_id: int):
 
 async def create_rental(session: AsyncSession, rental_data: RentalCreate):
     data = rental_data.model_dump(exclude_unset=True)
-    data["investor_profit"] = rental_data.total_amount * 0.7
+    data["investor_profit"] = rental_data.total_amount * rental_data.investor_percentage
     
     stmt = insert(Rental).values(**data).returning(Rental)
     result = await session.execute(stmt)

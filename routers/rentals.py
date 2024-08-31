@@ -19,6 +19,8 @@ async def create_rental(rental: rental_schema.RentalCreate, session: AsyncSessio
     if not car:
         raise HTTPException(status_code=404, detail="Car not found")
     
+    
+    
     session_rental = await rental_service.create_rental(session, rental)
     return session_rental
 
